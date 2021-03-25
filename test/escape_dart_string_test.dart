@@ -45,7 +45,7 @@ Exit code: ${result.exitCode}
 ${result.stdout}
 ${result.stderr}''');
 
-    final roundTripList = _decodeJsonStringList(result.stdout);
+    final roundTripList = _decodeJsonStringList(result.stdout as String);
 
     expect(originalList, roundTripList);
   });
@@ -54,7 +54,7 @@ ${result.stderr}''');
 List<String> _decodeJsonStringList(String input) =>
     (jsonDecode(input) as List).cast<String>();
 
-final _template = r'''
+const _template = r'''
 import 'dart:convert';
 
 void main() {
