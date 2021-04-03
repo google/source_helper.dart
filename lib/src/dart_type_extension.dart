@@ -14,6 +14,8 @@
 
 import 'package:analyzer/dart/element/nullability_suffix.dart';
 import 'package:analyzer/dart/element/type.dart';
+import 'package:collection/collection.dart';
+import 'package:source_gen/source_gen.dart';
 
 extension DartTypeExtension on DartType {
   bool isAssignableTo(DartType other) {
@@ -48,4 +50,18 @@ extension DartTypeExtension on DartType {
       }
     }
   }
+
+  /// If `this` is the [Type] or implements the [Type] represented by [checker],
+  /// returns the generic arguments to the [checker] [Type] if there are any.
+  ///
+  /// If the [checker] [Type] doesn't have generic arguments, `null` is
+  /// returned.
+  List<DartType>? typeArgumentsOf(TypeChecker checker) {
+    final implementation = _getImplementationType(checker) as InterfaceType?;
+
+    return implementation?.typeArguments;
+  }
+
+  DartType? _getImplementationType(TypeChecker checker) =>
+      typeImplementations.firstWhereOrNull(checker.isExactlyType);
 }
