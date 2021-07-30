@@ -14,7 +14,7 @@
 name: source_helper
 description: Utilities to help with Dart source code generation. Includes
   utilities for properly generating String literals from any String value.
-version: 1.2.0
+version: 1.2.1
 repository: https://github.com/google/source_helper.dart
 
 environment:

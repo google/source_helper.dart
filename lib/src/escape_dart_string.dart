@@ -67,7 +67,7 @@ String escapeDartString(String value) {
   return "'$string'";
 }
 
-final _dollarQuoteRegexp = RegExp(r"""(?=[$'"])""");
+final _dollarQuoteRegexp = RegExp(r"""(?=[$'])""");
 
 /// A [Map] between whitespace characters & `\` and their escape sequences.
 const _escapeMap = {

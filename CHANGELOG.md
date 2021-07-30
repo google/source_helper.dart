@@ -1,3 +1,7 @@
+## 1.2.1
+
+- More efficiently escape strings with both single and double quotes.
+
 ## 1.2.0
 
 - Support the latest version of `package:analyzer`.
