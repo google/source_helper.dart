@@ -12,5 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+export 'src/case_helpers.dart' show CaseHelper;
 export 'src/dart_type_extension.dart' show DartTypeExtension;
 export 'src/escape_dart_string.dart' show escapeDartString;
