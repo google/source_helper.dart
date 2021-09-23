@@ -17,7 +17,7 @@ env:
   PUB_ENVIRONMENT: bot.github
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -35,6 +35,8 @@ jobs:
       - run: dart format --output=none --set-exit-if-changed .
         if: always() && steps.install.outcome == 'success'
       - run: dart analyze --fatal-infos
-        if: always() && steps.install.outcome == 'success'
+        if: matrix.sdk == 'dev' && steps.install.outcome == 'success'
+      - run: dart analyze --no-fatal-warnings
+        if: matrix.sdk != 'dev' && steps.install.outcome == 'success'
       - run: dart test
         if: always() && steps.install.outcome == 'success'
