@@ -1,3 +1,7 @@
+## 1.2.2-dev
+
+- Add an example
+
 ## 1.2.1
 
 - More efficiently escape strings with both single and double quotes.
