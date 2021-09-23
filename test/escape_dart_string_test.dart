@@ -39,11 +39,15 @@ void main() {
       workingDirectory: d.sandbox,
     );
 
-    expect(result.exitCode, 0, reason: '''
+    expect(
+      result.exitCode,
+      0,
+      reason: '''
 Process did not complete!
 Exit code: ${result.exitCode}
 ${result.stdout}
-${result.stderr}''');
+${result.stderr}''',
+    );
 
     final roundTripList = _decodeJsonStringList(result.stdout as String);
 

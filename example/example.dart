@@ -18,11 +18,13 @@ import 'package:source_helper/source_helper.dart';
 /// when generating Dart source code.
 void main() {
   for (var item in _examples) {
-    print('''
+    print(
+      '''
 ----- Input
 $item
 ----- Output
-${escapeDartString(item)}''');
+${escapeDartString(item)}''',
+    );
   }
 }
 
