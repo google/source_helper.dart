@@ -1,6 +1,8 @@
-## 1.2.2-dev
+## 1.3.0
 
-- Add an example
+- Added `extension CaseHelper on String` to preform common, identifier-related
+  conversions.
+- Added an example
 
 ## 1.2.1
 
