@@ -1,3 +1,7 @@
+## 1.3.2
+
+- Support the latest version of `package:analyzer`.
+
 ## 1.3.1
 
 - Support the latest version of `package:analyzer`.
