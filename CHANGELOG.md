@@ -1,3 +1,8 @@
+## 1.3.3-dev
+
+- Require the latest version of `package:analyzer`.
+- Require Dart 2.17
+
 ## 1.3.2
 
 - Support the latest version of `package:analyzer`.
