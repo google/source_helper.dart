@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import 'package:analyzer/dart/element/element.dart';
 import 'package:analyzer/dart/element/nullability_suffix.dart';
 import 'package:analyzer/dart/element/type.dart';
 import 'package:collection/collection.dart';
@@ -19,13 +20,18 @@ import 'package:source_gen/source_gen.dart';
 
 extension DartTypeExtension on DartType {
   bool isAssignableTo(DartType other) {
-    final library = element!.library;
-    return library == null || library.typeSystem.isAssignableTo(this, other);
+    final me = this;
+
+    if (me is InterfaceType) {
+      final library = me.element2.library;
+      return library.typeSystem.isAssignableTo(this, other);
+    }
+    return true;
   }
 
   bool get isEnum {
     final myType = this;
-    return myType is InterfaceType && myType.element.isEnum;
+    return myType is InterfaceType && myType.element2 is EnumElement;
   }
 
   bool get isNullableType =>
