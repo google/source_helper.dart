@@ -1,7 +1,7 @@
 ## 1.3.3-dev
 
-- Require the latest version of `package:analyzer`.
-- Require Dart 2.17
+- Require `analyzer: '>=4.6.0 <6.0.0'`
+- Require `sdk: '>=2.17.0 <3.0.0'`
 
 ## 1.3.2
 
