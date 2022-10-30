@@ -23,7 +23,7 @@ extension DartTypeExtension on DartType {
     final me = this;
 
     if (me is InterfaceType) {
-      final library = me.element2.library;
+      final library = me.element.library;
       return library.typeSystem.isAssignableTo(this, other);
     }
     return true;
@@ -31,7 +31,7 @@ extension DartTypeExtension on DartType {
 
   bool get isEnum {
     final myType = this;
-    return myType is InterfaceType && myType.element2 is EnumElement;
+    return myType is InterfaceType && myType.element is EnumElement;
   }
 
   bool get isNullableType =>
