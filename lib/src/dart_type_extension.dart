@@ -35,10 +35,11 @@ extension DartTypeExtension on DartType {
   }
 
   bool get isNullableType =>
-      isDynamic || nullabilitySuffix == NullabilitySuffix.question;
+      this is DynamicType || nullabilitySuffix == NullabilitySuffix.question;
 
   /// Returns `true` if `this` is `dynamic` or `Object?`.
-  bool get isLikeDynamic => (isDartCoreObject && isNullableType) || isDynamic;
+  bool get isLikeDynamic =>
+      (isDartCoreObject && isNullableType) || this is DynamicType;
 
   /// Returns all of the [DartType] types that `this` implements, mixes-in, and
   /// extends, starting with `this` itself.
