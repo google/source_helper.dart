@@ -4,13 +4,13 @@ import 'package:test/test.dart';
 const _kebabItems = {
   'simple': 'simple',
   'twoWords': 'two-words',
-  'FirstBig': 'first-big'
+  'FirstBig': 'first-big',
 };
 
 const _pascalItems = {
   'simple': 'Simple',
   'twoWords': 'TwoWords',
-  'FirstBig': 'FirstBig'
+  'FirstBig': 'FirstBig',
 };
 
 const _snakeItems = {
