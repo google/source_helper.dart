@@ -18,7 +18,7 @@ version: 1.3.4
 repository: https://github.com/google/source_helper.dart
 
 environment:
-  sdk: '>=2.19.0 <3.0.0'
+  sdk: '>=2.19.0 <4.0.0'
 
 dependencies:
   analyzer: '>=5.12.0 <7.0.0'
