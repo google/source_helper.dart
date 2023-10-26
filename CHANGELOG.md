@@ -1,3 +1,7 @@
+## 1.3.5-wip
+
+- Require `sdk: ^3.0.0`
+
 ## 1.3.4
 
 - Require `analyzer: >=5.12.0 <7.0.0`
