@@ -19,6 +19,12 @@ const _snakeItems = {
   'FirstBig': 'first_big',
 };
 
+const _camelItems = {
+  'simple': 'simple',
+  'twoWords': 'twoWords',
+  'FirstBig': 'firstBig',
+};
+
 void main() {
   group('kebab', () {
     for (final entry in _kebabItems.entries) {
@@ -40,6 +46,14 @@ void main() {
     for (final entry in _snakeItems.entries) {
       test('"${entry.key}"', () {
         expect(entry.key.snake, entry.value);
+      });
+    }
+  });
+
+  group('camel', () {
+    for (final entry in _camelItems.entries) {
+      test('"${entry.key}"', () {
+        expect(entry.key.camel, entry.value);
       });
     }
   });
