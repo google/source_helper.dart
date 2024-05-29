@@ -1,6 +1,6 @@
 ## 1.3.5-wip
 
-- Require `sdk: ^3.0.0`
+- Require `sdk: ^3.4.0`
 
 ## 1.3.4
 
