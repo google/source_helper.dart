@@ -1,6 +1,7 @@
 ## 1.3.5-wip
 
 - Require `sdk: ^3.4.0`
+- Add `camel` to `extension CaseHelper on String`.
 
 ## 1.3.4
 

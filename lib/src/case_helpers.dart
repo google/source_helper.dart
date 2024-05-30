@@ -64,6 +64,25 @@ extension CaseHelper on String {
     return this[0].toUpperCase() + substring(1);
   }
 
+  /// Returns `this` where the first character is lowercase.
+  ///
+  /// Examples:
+  ///
+  /// ```text
+  /// 'simple'   -> 'simple',
+  /// 'twoWords' -> 'twoWords'
+  /// 'FirstBig' -> 'firstBig'
+  /// ```
+  ///
+  /// Whitespace is not considered or affected.
+  String get camel {
+    if (isEmpty) {
+      return '';
+    }
+
+    return this[0].toLowerCase() + substring(1);
+  }
+
   String _fixCase(String separator) => replaceAllMapped(_upperCase, (match) {
         var lower = match.group(0)!.toLowerCase();
 
