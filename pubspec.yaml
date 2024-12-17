@@ -23,7 +23,7 @@ environment:
 dependencies:
   analyzer: '>=5.12.0 <8.0.0'
   collection: ^1.17.0
-  source_gen: ^1.2.3
+  source_gen: '>=1.2.3 <3.0.0'
 
 dev_dependencies:
   dart_flutter_team_lints: ^3.0.0
