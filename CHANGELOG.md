@@ -1,7 +1,8 @@
-## 1.3.5-wip
+## 1.3.5
 
-- Require `sdk: ^3.4.0`
 - Add `camel` to `extension CaseHelper on String`.
+- Support the latest `package:analyzer` and `package:source_gen`.
+- Require `sdk: ^3.4.0`
 
 ## 1.3.4
 
