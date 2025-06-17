@@ -12,12 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// ignore_for_file: deprecated_member_use
-
-import 'package:analyzer/dart/element/element.dart';
+import 'package:analyzer/dart/element/element2.dart';
 import 'package:analyzer/dart/element/nullability_suffix.dart';
 import 'package:analyzer/dart/element/type.dart';
-import 'package:collection/collection.dart';
 import 'package:source_gen/source_gen.dart';
 
 extension DartTypeExtension on DartType {
@@ -25,7 +22,7 @@ extension DartTypeExtension on DartType {
     final me = this;
 
     if (me is InterfaceType) {
-      final library = me.element.library;
+      final library = me.element3.library2;
       return library.typeSystem.isAssignableTo(this, other);
     }
     return true;
@@ -33,7 +30,7 @@ extension DartTypeExtension on DartType {
 
   bool get isEnum {
     final myType = this;
-    return myType is InterfaceType && myType.element is EnumElement;
+    return myType is InterfaceType && myType.element3 is EnumElement2;
   }
 
   bool get isNullableType =>
@@ -72,5 +69,5 @@ extension DartTypeExtension on DartType {
   }
 
   DartType? _getImplementationType(TypeChecker checker) =>
-      typeImplementations.firstWhereOrNull(checker.isExactlyType);
+      typeImplementations.where(checker.isExactlyType).firstOrNull;
 }
