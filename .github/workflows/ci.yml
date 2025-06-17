@@ -32,11 +32,21 @@ jobs:
 
       - run: dart pub get
         id: install
-      - run: dart format --output=none --set-exit-if-changed .
-        if: always() && steps.install.outcome == 'success'
-      - run: dart analyze --fatal-infos
-        if: matrix.sdk == 'dev' && steps.install.outcome == 'success'
-      - run: dart analyze --no-fatal-warnings
-        if: matrix.sdk != 'dev' && steps.install.outcome == 'success'
-      - run: dart test
-        if: always() && steps.install.outcome == 'success'
+      - name: analyzer and test
+        run: |
+          dart analyze --no-fatal-warnings
+          dart test
+        if: matrix.sdk != 'dev'
+
+      - name: format, analyze, test with coverage
+        run: |
+          dart format --output=none --set-exit-if-changed .
+          dart analyze --fatal-infos
+          dart pub global activate coverage
+          dart pub global run coverage:test_with_coverage
+        if: matrix.sdk == 'dev'
+      - uses: coverallsapp/github-action@648a8eb78e6d50909eff900e4ec85cab4524a45b
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path-to-lcov: ./coverage/lcov.info
+        if: matrix.sdk == 'dev'
