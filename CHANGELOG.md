@@ -1,7 +1,7 @@
-## 1.3.6-wip
+## 1.3.6
 
 - Require `analyzer: ^7.3.0`
-- Require `source_gen: ^2.0.0`
+- Require `source_gen: >=2.0.0 <4.0.0`
 - Require `sdk: ^3.6.0`
 
 ## 1.3.5
