@@ -1,3 +1,7 @@
+## 1.3.7
+
+- Required `analyzer: '>=7.3.0 <9.0.0'`.
+
 ## 1.3.6
 
 - Require `analyzer: ^7.3.0`
