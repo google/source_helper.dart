@@ -84,14 +84,14 @@ extension CaseHelper on String {
   }
 
   String _fixCase(String separator) => replaceAllMapped(_upperCase, (match) {
-        var lower = match.group(0)!.toLowerCase();
+    var lower = match.group(0)!.toLowerCase();
 
-        if (match.start > 0) {
-          lower = '$separator$lower';
-        }
+    if (match.start > 0) {
+      lower = '$separator$lower';
+    }
 
-        return lower;
-      });
+    return lower;
+  });
 
   /// Returns `this` with all leading underscore characters removed.
   String get nonPrivate => replaceFirst(RegExp(r'^_*'), '');

@@ -22,22 +22,23 @@ import 'package:test_descriptor/test_descriptor.dart' as d;
 void main() {
   test('generate and validate', () async {
     final originalList = _decodeJsonStringList(
-      File('third_party/blns/big_list_of_naughty_strings.json')
-          .readAsStringSync(),
+      File(
+        'third_party/blns/big_list_of_naughty_strings.json',
+      ).readAsStringSync(),
     );
 
-    final dartStringList =
-        originalList.map(escapeDartString).map((e) => '$e,').join('\n');
+    final dartStringList = originalList
+        .map(escapeDartString)
+        .map((e) => '$e,')
+        .join('\n');
 
     final dartSource = _template.replaceAll(r'/*values*/', dartStringList);
 
     await d.file('print_items.dart', dartSource).create();
 
-    final result = Process.runSync(
-      'dart',
-      ['print_items.dart'],
-      workingDirectory: d.sandbox,
-    );
+    final result = Process.runSync('dart', [
+      'print_items.dart',
+    ], workingDirectory: d.sandbox);
 
     expect(
       result.exitCode,
