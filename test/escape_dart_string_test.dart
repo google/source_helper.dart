@@ -43,7 +43,8 @@ void main() {
     expect(
       result.exitCode,
       0,
-      reason: '''
+      reason:
+          '''
 Process did not complete!
 Exit code: ${result.exitCode}
 ${result.stdout}
