@@ -1,3 +1,9 @@
+## 1.3.9
+
+- Require `analyzer: ^9.0.0`
+- Require `sdk: ^3.9.0`
+- Require `source_gen: ^4.1.1`
+
 ## 1.3.8
 
 - Require `analyzer: ^7.4.0`
