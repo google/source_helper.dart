@@ -20,6 +20,31 @@ import 'package:test/test.dart';
 import 'package:test_descriptor/test_descriptor.dart' as d;
 
 void main() {
+  group('escapeDartString unit tests', () {
+    test('simple string', () {
+      expect(escapeDartString('hello'), "'hello'");
+    });
+
+    test('string with single quote', () {
+      expect(escapeDartString("it's a test"), '"it\'s a test"');
+    });
+
+    test('string with double quote', () {
+      expect(escapeDartString('hello "world"'), "'hello \"world\"'");
+    });
+
+    test('various string types', () {
+      expect(escapeDartString('hello'), "'hello'");
+      expect(escapeDartString("it's a test"), '"it\'s a test"');
+      expect(escapeDartString('hello "world"'), "'hello \"world\"'");
+      expect(escapeDartString('''it's "test"'''), r"""'it\'s "test"'""");
+      expect(escapeDartString(r'$hello'), r"r'$hello'");
+      expect(escapeDartString(r"$ it's"), r'''r"$ it's"''');
+      expect(escapeDartString('a\nb'), r"'a\nb'");
+      expect(escapeDartString(r'hello\world'), r"'hello\\world'");
+    });
+  });
+
   test('generate and validate', () async {
     final originalList = _decodeJsonStringList(
       File(
