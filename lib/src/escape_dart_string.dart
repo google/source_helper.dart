@@ -52,7 +52,7 @@ String escapeDartString(String value) {
   if (hasDollar && canBeRaw) {
     if (hasSingleQuote) {
       if (!hasDoubleQuote) {
-        // quote it with single quotes!
+        // quote it with double quotes!
         return 'r"$value"';
       }
     } else {
@@ -62,7 +62,7 @@ String escapeDartString(String value) {
   }
 
   // The only safe way to wrap the content is to escape all of the
-  // problematic characters - `$`, `'`, and `"`
+  // problematic characters - `$` and `'`
   final string = value.replaceAll(_dollarQuoteRegexp, r'\');
   return "'$string'";
 }
