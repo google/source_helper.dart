@@ -25,7 +25,7 @@ jobs:
         sdk: [3.9, dev]
 
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
       - uses: dart-lang/setup-dart@65eb853c7ba17dde3be364c3d2858773e7144260
         with:
           sdk: ${{ matrix.sdk }}
@@ -45,7 +45,7 @@ jobs:
           dart pub global activate coverage
           dart pub global run coverage:test_with_coverage
         if: matrix.sdk == 'dev'
-      - uses: coverallsapp/github-action@648a8eb78e6d50909eff900e4ec85cab4524a45b
+      - uses: coverallsapp/github-action@8d6379e14d29928660c4ba802d8e85393440b329
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           path-to-lcov: ./coverage/lcov.info
