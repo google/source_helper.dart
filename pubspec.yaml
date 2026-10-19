@@ -22,7 +22,6 @@ environment:
 
 dependencies:
   analyzer: '>=10.1.0 <15.0.0'
-  meta: ^1.18.0
   source_gen: ^4.1.2
 
 dev_dependencies:

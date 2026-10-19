@@ -14,7 +14,6 @@
 
 import 'package:analyzer/dart/constant/value.dart';
 import 'package:analyzer/dart/element/element.dart';
-import 'package:meta/meta.dart';
 import 'package:source_gen/source_gen.dart';
 
 const _objectMemberNames = {'hashCode', 'runtimeType'};
@@ -26,7 +25,6 @@ const _dartCoreObjectChecker = TypeChecker.typeNamed(
 );
 
 /// Which inherited members [createSortedFieldSet] considers.
-@experimental
 enum InheritedMemberScope {
   /// Members inherited from the superclass chain and mixins, via
   /// `InterfaceElement.inheritedConcreteMembers`.
@@ -51,7 +49,6 @@ enum InheritedMemberScope {
 /// [FieldElement] is the first one in the [fieldOverrideChain] that has a
 /// getter, so a narrowed subclass type wins while a setter-only subclass
 /// override keeps the inherited getter's field.
-@experimental
 List<FieldElement> createSortedFieldSet(
   InterfaceElement element, {
   InheritedMemberScope scope = InheritedMemberScope.concrete,
@@ -79,7 +76,6 @@ List<FieldElement> createSortedFieldSet(
 /// [field] is not part of that chain.
 ///
 /// A pure function of the element model.
-@experimental
 List<FieldElement> fieldOverrideChain(
   InterfaceElement element,
   FieldElement field,
@@ -104,7 +100,6 @@ List<FieldElement> fieldOverrideChain(
 /// in order: the field itself first, then its getter if it has one. Properties
 /// declared only by a getter or only by a setter are handled; the property is
 /// looked up by name so no [FieldElement] is needed up front.
-@experimental
 DartObject? firstAnnotationOnProperty(
   InterfaceElement element,
   String name,

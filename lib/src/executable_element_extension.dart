@@ -13,9 +13,7 @@
 // limitations under the License.
 
 import 'package:analyzer/dart/element/element.dart';
-import 'package:meta/meta.dart';
 
-@experimental
 extension ExecutableElementExtension on ExecutableElement {
   /// The name to use when emitting a tear-off of `this`: `fn` for a top-level
   /// function, `Class.method` for a method, and `Class` or `Class.named` for

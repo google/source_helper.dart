@@ -13,14 +13,12 @@
 // limitations under the License.
 
 import 'package:analyzer/dart/element/element.dart';
-import 'package:meta/meta.dart';
 import 'package:source_gen/source_gen.dart';
 
 /// Returns the constructor of [element] named [name]; `''` selects the
 /// unnamed constructor.
 ///
 /// Throws an [InvalidGenerationSourceError] if no such constructor exists.
-@experimental
 ConstructorElement constructorByName(InterfaceElement element, String name) {
   final className = element.name;
 
@@ -49,7 +47,6 @@ ConstructorElement constructorByName(InterfaceElement element, String name) {
 /// How to invoke [constructor] given a set of available argument names.
 ///
 /// Produced by [planConstruction].
-@experimental
 final class ConstructorPlan {
   /// The constructor that was planned.
   final ConstructorElement constructor;
@@ -86,7 +83,6 @@ final class ConstructorPlan {
 ///
 /// Makes no decision about unmatched parameters: callers inspect
 /// [ConstructorPlan.unmatched] and apply their own policy.
-@experimental
 ConstructorPlan planConstruction(
   ConstructorElement constructor,
   Set<String> availableNames,
@@ -126,7 +122,6 @@ ConstructorPlan planConstruction(
 /// with [withBounds], `<T extends num, S>`.
 ///
 /// Returns `''` when [element] has no type parameters.
-@experimental
 String typeParameterListCode(
   InterfaceElement element, {
   required bool withBounds,
