@@ -1,6 +1,7 @@
 ## 1.4.0
 
-- Require `analyzer: '>=10.1.0 <15.0.0'`.
+- Require `analyzer: '>=10.1.0 <15.0.0'`, `meta: ^1.18.0`, and
+  `source_gen: ^4.1.2`.
 - Add `DartType.toStringNonNullable()` and `DartType.enumConstants` to
   `DartTypeExtension`.
 - Add `@experimental` class-model helpers shared by code generators:
