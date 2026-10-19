@@ -13,5 +13,18 @@
 // limitations under the License.
 
 export 'src/case_helpers.dart' show CaseHelper;
+export 'src/constructor_plan.dart'
+    show
+        ConstructorPlan,
+        constructorByName,
+        planConstruction,
+        typeParameterListCode;
 export 'src/dart_type_extension.dart' show DartTypeExtension;
 export 'src/escape_dart_string.dart' show escapeDartString;
+export 'src/executable_element_extension.dart' show ExecutableElementExtension;
+export 'src/field_set.dart'
+    show
+        InheritedMemberScope,
+        createSortedFieldSet,
+        fieldOverrideChain,
+        firstAnnotationOnProperty;

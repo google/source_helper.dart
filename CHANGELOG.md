@@ -1,3 +1,16 @@
+## 1.4.0
+
+- Require `analyzer: '>=10.1.0 <15.0.0'`.
+- Add `DartType.toStringNonNullable()` and `DartType.enumConstants` to
+  `DartTypeExtension`.
+- Add `@experimental` class-model helpers shared by code generators:
+  - `createSortedFieldSet`, `InheritedMemberScope`, `fieldOverrideChain` and
+    `firstAnnotationOnProperty` for the field set of a class and its
+    supertypes.
+  - `constructorByName`, `planConstruction` with `ConstructorPlan`, and
+    `typeParameterListCode` for constructor invocations.
+  - `ExecutableElementExtension.qualifiedName` for tear-off emission.
+
 ## 1.3.13
 
 - Require `analyzer: '>=9.0.0 <15.0.0'`

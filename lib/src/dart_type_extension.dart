@@ -33,12 +33,34 @@ extension DartTypeExtension on DartType {
     return myType is InterfaceType && myType.element is EnumElement;
   }
 
+  /// The constants of `this` enum type in declaration order, or an empty list
+  /// if `this` is not an enum type.
+  List<FieldElement> get enumConstants {
+    final myType = this;
+    if (myType is InterfaceType) {
+      final element = myType.element;
+      if (element is EnumElement) {
+        return element.constants;
+      }
+    }
+    return const [];
+  }
+
   bool get isNullableType =>
       this is DynamicType || nullabilitySuffix == NullabilitySuffix.question;
 
   /// Returns `true` if `this` is `dynamic` or `Object?`.
   bool get isLikeDynamic =>
       (isDartCoreObject && isNullableType) || this is DynamicType;
+
+  /// Returns `getDisplayString()` without a trailing `?`.
+  String toStringNonNullable() {
+    final value = getDisplayString();
+    if (value.endsWith('?')) {
+      return value.substring(0, value.length - 1);
+    }
+    return value;
+  }
 
   /// Returns all of the [DartType] types that `this` implements, mixes-in, and
   /// extends, starting with `this` itself.
