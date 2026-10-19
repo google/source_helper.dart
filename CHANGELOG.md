@@ -9,7 +9,7 @@
     supertypes.
   - `constructorByName`, `planConstruction` with `ConstructorPlan`, and
     `typeParameterListCode` for constructor invocations.
-  - `ExecutableElementExtension.qualifiedName` for tear-off emission.
+  - `ExecutableElementExtension.qualifiedName` for invocation targets.
 
 ## 1.3.13
 

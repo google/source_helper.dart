@@ -139,6 +139,85 @@ class AnnSub extends AnnBase {
   @override
   int f6 = 1;
 }
+
+abstract class AbsBase {
+  @Tag('abs base')
+  int get x;
+}
+
+class ConcreteSub extends AbsBase {
+  @override
+  int get x => 1;
+}
+
+class Grand {
+  @Tag('grand')
+  int get x => 1;
+}
+
+abstract class AbsMid extends Grand {
+  @Tag('mid')
+  @override
+  int get x;
+}
+
+class LeafSub extends AbsMid {
+  @override
+  int get x => 2;
+}
+
+class LeafSubInherited extends AbsMid {}
+
+class MixBase {
+  @Tag('mix base')
+  int get x => 1;
+}
+
+mixin MixOnTop {
+  @Tag('mix on top')
+  int get x => 2;
+}
+
+class MixParent extends MixBase with MixOnTop {
+  @override
+  int get x => 3;
+}
+
+class MixChild extends MixParent {
+  @override
+  int get x => 4;
+}
+
+abstract class Iface {
+  @Tag('iface')
+  int get x;
+}
+
+class SuperWithX {
+  int get x => 1;
+}
+
+class SubAndIface extends SuperWithX implements Iface {
+  @override
+  int get x => 2;
+}
+
+class OnlyIface implements Iface {
+  @override
+  int get x => 2;
+}
+
+mixin OrderMixin {
+  int mixinField = 0;
+}
+
+class OrderSub extends OrderBase with OrderMixin {
+  int subField = 0;
+}
+
+class OrderBase {
+  int baseField = 0;
+}
 ''';
 
 const _tagChecker = TypeChecker.typeNamedLiterally('Tag');
@@ -256,6 +335,14 @@ void main() {
       final fields = createSortedFieldSet(cls('IntBox'));
       expect(fields.names, ['item', 'extra']);
       expect(fields.first.enclosingElement.name, 'Box');
+      expect(fields.first.type.getDisplayString(), 'int');
+      expect(
+        fieldOverrideChain(
+          cls('IntBox'),
+          fields.first,
+        ).map((f) => f.enclosingElement.name),
+        ['Box'],
+      );
     });
 
     test('mixin fields', () {
@@ -265,6 +352,14 @@ void main() {
     test('static fields are excluded', () {
       expect(createSortedFieldSet(cls('Tag')).names, ['value']);
     });
+
+    test('transitive hierarchy order across superclass and mixin', () {
+      expect(createSortedFieldSet(cls('OrderSub')).names, [
+        'baseField',
+        'mixinField',
+        'subField',
+      ]);
+    });
   });
 
   group('fieldOverrideChain', () {
@@ -273,6 +368,59 @@ void main() {
       final chain = fieldOverrideChain(sub, sub.field('baseGetter'));
       expect(chain.names, ['baseGetter', 'baseGetter']);
       expect(chain.map((f) => f.enclosingElement.name), ['Sub', 'Base']);
+    });
+
+    test('includes abstract superclass declaration overridden in subclass', () {
+      final sub = cls('ConcreteSub');
+      final chain = fieldOverrideChain(sub, sub.field('x'));
+      expect(chain.map((f) => f.enclosingElement.name), [
+        'ConcreteSub',
+        'AbsBase',
+      ]);
+    });
+
+    test(
+      'orders abstract intermediate override before concrete grandparent',
+      () {
+        final sub = cls('LeafSub');
+        final chain = fieldOverrideChain(sub, sub.field('x'));
+        expect(chain.map((f) => f.enclosingElement.name), [
+          'LeafSub',
+          'AbsMid',
+          'Grand',
+        ]);
+      },
+    );
+
+    test('orders mixin on parent before parent superclass', () {
+      final child = cls('MixChild');
+      final chain = fieldOverrideChain(child, child.field('x'));
+      expect(chain.map((f) => f.enclosingElement.name), [
+        'MixChild',
+        'MixParent',
+        'MixOnTop',
+        'MixBase',
+      ]);
+    });
+
+    test('excludes implemented interfaces from concrete override chain', () {
+      final subAndIface = cls('SubAndIface');
+      expect(
+        fieldOverrideChain(
+          subAndIface,
+          subAndIface.field('x'),
+        ).map((f) => f.enclosingElement.name),
+        ['SubAndIface', 'SuperWithX'],
+      );
+
+      final onlyIface = cls('OnlyIface');
+      expect(
+        fieldOverrideChain(
+          onlyIface,
+          onlyIface.field('x'),
+        ).map((f) => f.enclosingElement.name),
+        ['OnlyIface'],
+      );
     });
 
     test('is the same chain from any member of it', () {
@@ -360,6 +508,28 @@ void main() {
 
     test('unannotated property', () {
       expect(tag('AnnBase', 'f2'), isNull);
+    });
+
+    test('falls back to abstract superclass getter annotation', () {
+      expect(tag('ConcreteSub', 'x'), 'abs base');
+    });
+
+    test(
+      'prefers abstract intermediate override annotation over grandparent',
+      () {
+        expect(tag('LeafSub', 'x'), 'mid');
+        expect(tag('LeafSubInherited', 'x'), 'mid');
+      },
+    );
+
+    test('prefers mixin annotation on parent over parent superclass', () {
+      expect(tag('MixParent', 'x'), 'mix on top');
+      expect(tag('MixChild', 'x'), 'mix on top');
+    });
+
+    test('ignores annotations on implemented interfaces', () {
+      expect(tag('SubAndIface', 'x'), isNull);
+      expect(tag('OnlyIface', 'x'), isNull);
     });
   });
 }

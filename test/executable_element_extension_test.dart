@@ -37,9 +37,20 @@ class Foo {
   int get prop => 3;
 }
 
+extension NamedExt on int {
+  static int staticExt() => 1;
+  int instanceExt() => 2;
+}
+
+extension on int {
+  static int unnamedStaticExt() => 1;
+  int unnamedInstanceExt() => unnamedStaticExt();
+}
+
 void outer() {
   int local() => 1;
   local();
+  0.unnamedInstanceExt();
 }
 ''';
 
@@ -74,10 +85,35 @@ void main() {
     expect(foo.getMethod('staticMethod')!.qualifiedName, 'Foo.staticMethod');
   });
 
-  test('instance method', () {
+  test('instance method throws', () {
     expect(
-      foo.getMethod('instanceMethod')!.qualifiedName,
-      'Foo.instanceMethod',
+      () => foo.getMethod('instanceMethod')!.qualifiedName,
+      throwsUnsupportedError,
+    );
+  });
+
+  test('named extension static method', () {
+    final ext = library.extensions.singleWhere((e) => e.name == 'NamedExt');
+    expect(ext.getMethod('staticExt')!.qualifiedName, 'NamedExt.staticExt');
+  });
+
+  test('named extension instance method throws', () {
+    final ext = library.extensions.singleWhere((e) => e.name == 'NamedExt');
+    expect(
+      () => ext.getMethod('instanceExt')!.qualifiedName,
+      throwsUnsupportedError,
+    );
+  });
+
+  test('unnamed extension methods throw', () {
+    final ext = library.extensions.singleWhere((e) => e.name == null);
+    expect(
+      () => ext.getMethod('unnamedStaticExt')!.qualifiedName,
+      throwsUnsupportedError,
+    );
+    expect(
+      () => ext.getMethod('unnamedInstanceExt')!.qualifiedName,
+      throwsUnsupportedError,
     );
   });
 

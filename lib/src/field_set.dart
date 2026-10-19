@@ -14,6 +14,7 @@
 
 import 'package:analyzer/dart/constant/value.dart';
 import 'package:analyzer/dart/element/element.dart';
+import 'package:analyzer/dart/element/type.dart';
 import 'package:source_gen/source_gen.dart';
 
 const _objectMemberNames = {'hashCode', 'runtimeType'};
@@ -55,14 +56,28 @@ List<FieldElement> createSortedFieldSet(
   bool includeSetterOnly = false,
   bool Function(FieldElement objectMemberOverride)? keepObjectMemberOverride,
 }) {
+  final hierarchy = _hierarchy(element, scope: scope);
+  final rankByType = <InterfaceElement, int>{
+    for (var i = 0; i < hierarchy.length; i++) hierarchy[i].element: i,
+  };
   final chains = _overrideChains(
     element,
+    hierarchy: hierarchy,
     scope: scope,
     includeSetterOnly: includeSetterOnly,
     keepObjectMemberOverride: keepObjectMemberOverride ?? _dropObjectMembers,
   );
 
-  final fieldSets = chains.values.map(_FieldSet.new).toList()..sort();
+  final fieldSets =
+      chains.values
+          .map(
+            (chain) => _FieldSet(
+              chain,
+              rankByType[chain.first.enclosingElement as InterfaceElement]!,
+            ),
+          )
+          .toList()
+        ..sort();
 
   return fieldSets.map((fs) => fs.field).toList(growable: false);
 }
@@ -80,14 +95,16 @@ List<FieldElement> fieldOverrideChain(
   InterfaceElement element,
   FieldElement field,
 ) {
+  const scope = InheritedMemberScope.concrete;
   final chain = _overrideChains(
     element,
-    scope: InheritedMemberScope.concrete,
+    hierarchy: _hierarchy(element, scope: scope),
+    scope: scope,
     includeSetterOnly: false,
     keepObjectMemberOverride: _keepAll,
   )[field.name];
 
-  if (chain == null || !chain.contains(field)) {
+  if (chain == null || !chain.any((f) => f.baseElement == field.baseElement)) {
     return [field];
   }
   return chain;
@@ -105,9 +122,11 @@ DartObject? firstAnnotationOnProperty(
   String name,
   TypeChecker checker,
 ) {
+  const scope = InheritedMemberScope.concrete;
   final chain = _overrideChains(
     element,
-    scope: InheritedMemberScope.concrete,
+    hierarchy: _hierarchy(element, scope: scope),
+    scope: scope,
     includeSetterOnly: true,
     keepObjectMemberOverride: _keepAll,
   )[name];
@@ -134,11 +153,84 @@ bool _dropObjectMembers(FieldElement _) => false;
 
 bool _keepAll(FieldElement _) => true;
 
+/// Returns `element.thisType` followed by its supertypes in linearized
+/// override order (most-specific to least-specific), excluding `dart:core`
+/// `Object`.
+///
+/// Using [InterfaceType] preserves type argument substitutions from [element]
+/// along the superclass, mixin, and interface hierarchy.
+///
+/// For [InheritedMemberScope.concrete], only the superclass chain and mixins
+/// applied along it are included. For [InheritedMemberScope.all], any
+/// remaining [InterfaceElement.allSupertypes] (such as implemented interfaces)
+/// are appended after the superclass and mixin chain.
+List<InterfaceType> _hierarchy(
+  InterfaceElement element, {
+  required InheritedMemberScope scope,
+}) {
+  final result = <InterfaceType>[];
+  final seen = <InterfaceElement>{};
+  void add(InterfaceType type) {
+    if (!type.isDartCoreObject && seen.add(type.element)) {
+      result.add(type);
+    }
+  }
+
+  for (
+    InterfaceType? current = element.thisType;
+    current != null && !current.isDartCoreObject;
+    current = current.superclass
+  ) {
+    add(current);
+    for (final mixin in current.mixins.reversed) {
+      add(mixin);
+    }
+  }
+
+  if (scope == InheritedMemberScope.all) {
+    for (final supertype in element.allSupertypes) {
+      add(supertype);
+    }
+  }
+
+  return result;
+}
+
+/// Yields the instance [FieldElement]s of [type], with type parameters
+/// substituted when [type] is a parameterized supertype of [origin].
+Iterable<FieldElement> _fieldsOf(
+  InterfaceType type, {
+  required InterfaceElement origin,
+}) sync* {
+  if (identical(type.element, origin) || type.typeArguments.isEmpty) {
+    for (final field in type.element.fields) {
+      if (!field.isStatic) {
+        yield field;
+      }
+    }
+    return;
+  }
+
+  final seenNames = <String>{};
+  for (final accessor in [...type.getters, ...type.setters]) {
+    if (accessor.isStatic) {
+      continue;
+    }
+    final variable = accessor.variable;
+    if (variable is FieldElement &&
+        variable.name != null &&
+        seenNames.add(variable.name!)) {
+      yield variable;
+    }
+  }
+}
+
 /// Maps each instance property name of [element] to its override chain: the
 /// field declared on [element], if any, followed by the overridden supertype
 /// fields in inheritance order.
 Map<String?, List<FieldElement>> _overrideChains(
   InterfaceElement element, {
+  required List<InterfaceType> hierarchy,
   required InheritedMemberScope scope,
   required bool includeSetterOnly,
   required bool Function(FieldElement) keepObjectMemberOverride,
@@ -146,13 +238,13 @@ Map<String?, List<FieldElement>> _overrideChains(
   bool isDroppedObjectMember(FieldElement e) =>
       _objectMemberNames.contains(e.name) && !keepObjectMemberOverride(e);
 
-  final elementInstanceFields = Map.fromEntries(
-    element.fields
-        .where((e) => !e.isStatic && !isDroppedObjectMember(e))
-        .map((e) => MapEntry(e.name, e)),
-  );
-
-  final inheritedFields = <String, List<FieldElement>>{};
+  final includedNames = <String>{
+    for (final field in element.fields)
+      if (!field.isStatic &&
+          field.name != null &&
+          !isDroppedObjectMember(field))
+        field.name!,
+  };
 
   final inheritedMembers = switch (scope) {
     InheritedMemberScope.concrete => element.inheritedConcreteMembers,
@@ -174,57 +266,40 @@ Map<String?, List<FieldElement>> _overrideChains(
         continue;
     }
 
-    if (isDroppedObjectMember(variable)) {
-      continue;
-    }
-    final list = inheritedFields.putIfAbsent(variable.name!, () => []);
-    if (!list.contains(variable)) {
-      list.add(variable);
+    if (!isDroppedObjectMember(variable) && variable.name != null) {
+      includedNames.add(variable.name!);
     }
   }
 
-  for (final supertype in element.allSupertypes) {
-    if (_dartCoreObjectChecker.isExactly(supertype.element)) {
-      continue;
-    }
-    for (final field in supertype.element.fields) {
-      if (field.isStatic || isDroppedObjectMember(field)) {
-        continue;
-      }
+  final chains = <String?, List<FieldElement>>{};
+  for (final type in hierarchy) {
+    for (final field in _fieldsOf(type, origin: element)) {
       final name = field.name;
-      if (name == null) {
+      if (name == null ||
+          !includedNames.contains(name) ||
+          isDroppedObjectMember(field)) {
         continue;
       }
-      final list = inheritedFields[name];
-      if (list != null && !list.contains(field)) {
-        list.add(field);
-      }
+      chains.putIfAbsent(name, () => []).add(field);
     }
   }
 
-  final allNames = elementInstanceFields.keys.toSet().union(
-    inheritedFields.keys.toSet(),
-  );
-
-  return {
-    for (final name in allNames)
-      // At least one of these is non-null, perhaps both.
-      name: <FieldElement>[
-        ?elementInstanceFields[name],
-        ...?inheritedFields[name],
-      ],
-  };
+  return chains;
 }
 
 class _FieldSet implements Comparable<_FieldSet> {
   final FieldElement field;
   final FieldElement sortField;
 
-  _FieldSet._(this.field, this.sortField)
+  /// Index of `sortField.enclosingElement` in [_hierarchy] (0 is the class
+  /// itself; larger indices are more-super declarations).
+  final int hierarchyIndex;
+
+  _FieldSet._(this.field, this.sortField, this.hierarchyIndex)
     : assert(field.name == sortField.name);
 
   /// [chain] is a non-empty override chain as produced by [_overrideChains].
-  factory _FieldSet(List<FieldElement> chain) {
+  factory _FieldSet(List<FieldElement> chain, int hierarchyIndex) {
     // Prefer the class field over the inherited field when sorting.
     final sortField = chain.first;
 
@@ -236,29 +311,17 @@ class _FieldSet implements Comparable<_FieldSet> {
       orElse: () => chain.first,
     );
 
-    return _FieldSet._(primaryField, sortField);
+    return _FieldSet._(primaryField, sortField, hierarchyIndex);
   }
 
   @override
-  int compareTo(_FieldSet other) => _sortByLocation(sortField, other.sortField);
-
-  static int _sortByLocation(FieldElement a, FieldElement b) {
-    final checkerA = TypeChecker.fromStatic(a.enclosingElement.thisType);
-
-    if (!checkerA.isExactly(b.enclosingElement)) {
-      // In this case, prioritize the enclosingElement that is more "super".
-      if (checkerA.isAssignableFrom(b.enclosingElement)) {
-        return -1;
-      }
-
-      final checkerB = TypeChecker.fromStatic(b.enclosingElement.thisType);
-
-      if (checkerB.isAssignableFrom(a.enclosingElement)) {
-        return 1;
-      }
+  int compareTo(_FieldSet other) {
+    // Supertypes have a larger hierarchyIndex and sort before subtypes.
+    final byType = other.hierarchyIndex.compareTo(hierarchyIndex);
+    if (byType != 0) {
+      return byType;
     }
-
-    return _offsetFor(a).compareTo(_offsetFor(b));
+    return _offsetFor(sortField).compareTo(_offsetFor(other.sortField));
   }
 
   /// Returns the offset of the given field/property in its source file, with
