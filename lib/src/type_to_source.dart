@@ -39,8 +39,16 @@ final class _TypeWriter {
   String write(DartType type) {
     if (type.alias case final alias?) {
       if (_reference(alias.element) case final name?) {
-        return '$name${_typeArguments(alias.typeArguments)}'
-            '${_suffix(alias.nullabilitySuffix)}';
+        final unaliased = alias.element.instantiate(
+          typeArguments: alias.typeArguments,
+          nullabilitySuffix: NullabilitySuffix.none,
+        );
+        final suffix =
+            type.nullabilitySuffix == NullabilitySuffix.question &&
+                unaliased.nullabilitySuffix != NullabilitySuffix.question
+            ? '?'
+            : '';
+        return '$name${_typeArguments(alias.typeArguments)}$suffix';
       }
     }
     return switch (type) {
@@ -59,17 +67,15 @@ final class _TypeWriter {
   /// How [_library] refers to [element]: `Name`, `prefix.Name`, or `null` if
   /// it cannot.
   String? _reference(Element element) {
-    final name = element.name;
-    if (name == null) {
-      return null;
-    }
-    final fragment = _library.firstFragment;
-    if (fragment.scope.lookup(name).getter == element) {
-      return name;
-    }
-    for (final prefix in fragment.prefixes) {
-      if (prefix.scope.lookup(name).getter == element) {
-        return '${prefix.name}.$name';
+    if (element.name case final name?) {
+      final fragment = _library.firstFragment;
+      if (fragment.scope.lookup(name).getter == element) {
+        return name;
+      }
+      for (final prefix in fragment.prefixes) {
+        if (prefix.scope.lookup(name).getter == element) {
+          return '${prefix.name}.$name';
+        }
       }
     }
     return null;

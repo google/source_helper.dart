@@ -33,6 +33,8 @@ typedef Local<T> = Map<String, T>;
 
 typedef NullableLocal = int?;
 
+typedef Box<T> = T;
+
 abstract class Fields<T extends num> {
   abstract int plain;
   abstract String? nullable;
@@ -47,13 +49,14 @@ abstract class Fields<T extends num> {
   abstract Visible shownWithoutPrefix;
   abstract Local<int>? localAlias;
   abstract NullableLocal nullableAlias;
+  abstract Box<int?> nullableArgAlias;
   abstract o.OtherAlias? prefixedAlias;
   abstract (int, {String name})? record;
   abstract (o.Other<int>,) singlePositionalRecord;
   abstract ({int a, String? b}) namedRecord;
   abstract void Function(int, {required String name, o.Other<int>? other})?
   namedParameters;
-  abstract T Function<S extends T>(S, [int, String?]) genericFunction;
+  abstract T Function<S, U extends T>(S, U, [int, String?]) genericFunction;
 }
 
 class Sub extends Base {}
@@ -70,8 +73,11 @@ typedef OtherAlias = List<Other<int>>;
 const _base = '''
 typedef Ints = List<int>;
 
+class Unimported {}
+
 class Base {
   Ints? inherited;
+  Unimported? unimportedField;
 }
 ''';
 
@@ -103,13 +109,14 @@ void main() {
       'shownWithoutPrefix': 'Visible',
       'localAlias': 'Local<int>?',
       'nullableAlias': 'NullableLocal',
+      'nullableArgAlias': 'Box<int?>',
       'prefixedAlias': 'o.OtherAlias?',
       'record': '(int, {String name})?',
       'singlePositionalRecord': '(o.Other<int>,)',
       'namedRecord': '({int a, String? b})',
       'namedParameters':
           'void Function(int, {required String name, o.Other<int>? other})?',
-      'genericFunction': 'T Function<S extends T>(S, [int, String?])',
+      'genericFunction': 'T Function<S, U extends T>(S, U, [int, String?])',
     }.entries) {
       test('$name is `$expected`', () {
         expect(fieldCode(name), expected);
@@ -124,6 +131,15 @@ void main() {
           .getField('inherited')!;
       expect(inherited.type.alias, isNotNull);
       expect(typeToSource(inherited.type, library: library), 'List<int>?');
+    });
+
+    test('a class that is not imported falls back to its bare name', () {
+      final unimported = library
+          .cls('Sub')
+          .supertype!
+          .element
+          .getField('unimportedField')!;
+      expect(typeToSource(unimported.type, library: library), 'Unimported?');
     });
 
     test('the result depends on the library it is written for', () {
