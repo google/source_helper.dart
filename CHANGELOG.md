@@ -1,3 +1,9 @@
+## 1.5.0-wip
+
+- Add `typeToSource`, which returns Dart source for a `DartType` that is valid in
+  a given library: it adds import prefixes, and writes a type alias by name
+  only when the library can refer to it.
+
 ## 1.4.0
 
 - Require `analyzer: '>=10.1.0 <15.0.0'` and `source_gen: ^4.1.2`.

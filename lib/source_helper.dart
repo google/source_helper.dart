@@ -28,3 +28,4 @@ export 'src/field_set.dart'
         createSortedFieldSet,
         fieldOverrideChain,
         firstAnnotationOnProperty;
+export 'src/type_to_source.dart' show typeToSource;
