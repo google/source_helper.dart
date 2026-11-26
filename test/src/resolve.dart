@@ -24,12 +24,21 @@ import 'package:test_descriptor/test_descriptor.dart' as d;
 ///
 /// Safe to call from `setUpAll`: the directory is removed by a tear-down
 /// registered for the enclosing group.
-Future<ResolvedLibraryResult> resolveSource(String source) async {
+///
+/// [extraFiles] maps file names to the source of other libraries to create
+/// next to the fixture, so that it can import them.
+Future<ResolvedLibraryResult> resolveSource(
+  String source, {
+  Map<String, String> extraFiles = const {},
+}) async {
   final dir = Directory.systemTemp.createTempSync('source_helper_test_');
   addTearDown(() => dir.delete(recursive: true));
 
   const fileName = 'fixture.dart';
   await d.file(fileName, source).create(dir.path);
+  for (final MapEntry(:key, :value) in extraFiles.entries) {
+    await d.file(key, value).create(dir.path);
+  }
   final path = '${dir.path}${Platform.pathSeparator}$fileName';
 
   final collection = AnalysisContextCollection(includedPaths: [dir.path]);
